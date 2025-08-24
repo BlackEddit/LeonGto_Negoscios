@@ -1,0 +1,19 @@
+{
+  "name": "leon-mapa",
+  "version": "1.0.0",
+  "description": "Dashboard León GTO - Descarga y visualización de DENUE",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dump:test20": "node scripts/dump_denue_leon.js --mode=fast --limit=20",
+    "dump:fast": "node scripts/dump_denue_leon.js --mode=fast",
+    "dump:full": "node scripts/dump_denue_leon.js --mode=full"
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2"
+  }
+}
