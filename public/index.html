@@ -30,6 +30,7 @@
 <script src="js/utils.js"></script>
 <script src="js/data.js"></script>
 <script src="js/drawing.js"></script>
+<script src="js/analytics.js"></script>
 
 <style>
   :root{
@@ -217,6 +218,221 @@
     min-width: 60px;
     text-align: center;
   }
+
+  /* ANALYTICS DASHBOARD */
+  .analytics-panel {
+    position: fixed;
+    top: 0; bottom: 0; right: 0;
+    width: 400px;
+    background: white;
+    border-left: 1px solid #e5e7eb;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .analytics-panel.show { display: flex; }
+  
+  .analytics-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .analytics-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  
+  .analytics-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .analytics-content {
+    padding: 20px;
+    flex: 1;
+  }
+  
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .kpi-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981, #3b82f6);
+  }
+  
+  .kpi-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+  
+  .kpi-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+  }
+  
+  .kpi-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 20px;
+    opacity: 0.3;
+  }
+  
+  .chart-placeholder {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .chart-placeholder h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .sector-list, .colony-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .sector-item, .colony-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .sector-rank {
+    background: #3b82f6;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .sector-name, .colony-name {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .sector-count, .colony-count {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+  }
+  
+  .sector-bar {
+    width: 60px;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    position: relative;
+  }
+  
+  .sector-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #3b82f6);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  
+  .trend-insights {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .insight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+    font-size: 13px;
+    color: #374151;
+  }
+  
+  .insight-icon {
+    font-size: 18px;
+  }
+  
+  .chart-note {
+    margin-top: 12px;
+    font-size: 11px;
+    color: #9ca3af;
+    text-align: center;
+    font-style: italic;
+  }
+  
+  .analytics-actions {
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+  }
+  
+  .btn-analytics {
+    width: 100%;
+    padding: 12px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .btn-analytics:hover {
+    background: #059669;
+  }
 </style>
 </head>
 <body>
@@ -286,10 +502,14 @@
       <div class="small"><span class="badge" id="modeBadge">Modo: GeoJSON</span></div>
     </div>
 
+    <div class="row">
+      <button id="btnAnalytics" class="ghost" style="background: #10b981; color: white;">📊 Dashboard Analytics</button>
+    </div>
+
     <div class="hint" id="status"></div>
     <div class="hint">
       Atajos: <span class="kbd">F</span> filtros · <span class="kbd">I</span> info · <span class="kbd">H</span> heatmap ·
-      <span class="kbd">C</span> centrar · <span class="kbd">/</span> buscar nombre
+      <span class="kbd">A</span> analytics · <span class="kbd">C</span> centrar · <span class="kbd">/</span> buscar nombre
     </div>
   </div>
   <button id="btnShow" class="fab">🎛️ Filtros</button>
@@ -342,6 +562,41 @@
     </div>
   </div>
 
+  <!-- PANEL DE ANALYTICS -->
+  <div id="analyticsPanel" class="analytics-panel">
+    <div class="analytics-header">
+      <h2>📊 Dashboard Analytics</h2>
+      <button id="closeAnalytics" class="analytics-close">✕</button>
+    </div>
+    <div class="analytics-content">
+      <!-- KPIs Principales -->
+      <div id="analytics-kpis">
+        <div class="chart-placeholder">
+          <h3>⚡ Cargando métricas...</h3>
+          <div class="chart-note">Selecciona un dataset para ver analytics</div>
+        </div>
+      </div>
+      
+      <!-- Gráfico de Sectores -->
+      <div id="sector-chart">
+        <!-- Se llena dinámicamente -->
+      </div>
+      
+      <!-- Heatmap de Densidad -->
+      <div id="density-heatmap">
+        <!-- Se llena dinámicamente -->
+      </div>
+      
+      <!-- Análisis de Tendencias -->
+      <div id="trend-analysis">
+        <!-- Se llena dinámicamente -->
+      </div>
+    </div>
+    <div class="analytics-actions">
+      <button id="exportAnalytics" class="btn-analytics">📋 Exportar Analytics</button>
+    </div>
+  </div>
+
 <script>
   // ===== INICIALIZACIÓN =====
   const map = new maplibregl.Map({ 
@@ -386,6 +641,7 @@
 
   // ===== SISTEMAS =====
   const drawingSystem = new DrawingSystem(map, statusEl, clipCount);
+  const analytics = new Analytics();
 
   // ===== MODAL DE RESUMEN =====
   const modalResumen = document.getElementById('modalResumen');
@@ -430,6 +686,34 @@
 
   // Hacer función disponible globalmente
   window.mostrarResumenRegion = mostrarResumenRegion;
+
+  // ===== PANEL DE ANALYTICS =====
+  const analyticsPanel = document.getElementById('analyticsPanel');
+  const btnAnalytics = document.getElementById('btnAnalytics');
+  const closeAnalytics = document.getElementById('closeAnalytics');
+  const exportAnalytics = document.getElementById('exportAnalytics');
+  
+  // Abrir panel de analytics
+  btnAnalytics.onclick = () => {
+    if (window.__MODE === 'geojson' && window.__fullGJ) {
+      analytics.initialize(window.__fullGJ);
+      analyticsPanel.classList.add('show');
+    } else {
+      alert('⚠️ Carga un dataset GeoJSON primero para ver analytics');
+    }
+  };
+  
+  // Cerrar panel
+  closeAnalytics.onclick = () => analyticsPanel.classList.remove('show');
+  
+  // Exportar analytics
+  exportAnalytics.onclick = () => {
+    if (analytics.data) {
+      analytics.exportAnalytics();
+    } else {
+      alert('⚠️ No hay datos para exportar');
+    }
+  };
 
   // ===== EVENTOS BÁSICOS =====
   // Panel toggle
@@ -476,6 +760,12 @@
     }
     if (e.key === 'c' || e.key === 'C') { 
       if (window.__MODE === 'geojson' && window.__currentGJ) Utils.fitToData(map, window.__currentGJ); 
+    }
+    if (e.key === 'a' || e.key === 'A') {
+      if (window.__MODE === 'geojson' && window.__fullGJ) {
+        analytics.initialize(window.__fullGJ);
+        analyticsPanel.classList.add('show');
+      }
     }
     if (e.key === '/') { nameSearch.focus(); e.preventDefault(); }
     if (e.key === 'Enter' && document.activeElement === nameSearch) applyFilter();
@@ -565,6 +855,11 @@
     Utils.fitToData(map, fullGJ);
     statusEl.textContent = `Cargado: ${(fullGJ.features?.length ?? 0).toLocaleString()} puntos (${name}).`;
     clearInfo();
+    
+    // Actualizar analytics si está abierto
+    if (analyticsPanel.classList.contains('show')) {
+      analytics.initialize(fullGJ);
+    }
   }
 
   // Cargar PMTiles
