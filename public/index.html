@@ -25,6 +25,24 @@
 <!-- Turf (geo utilidades) -->
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.1.0/turf.min.js"></script>
 
+<!-- Chart.js para gráficos -->
+<script src="libs/chart-simple.js"></script>
+<script>
+  // Verificar que Chart.js esté disponible
+  console.log('✅ Chart.js Simple cargado:', typeof Chart !== 'undefined' ? 'OK' : 'FAIL');
+  
+  // Intentar cargar Chart.js real como mejora opcional
+  const realChartScript = document.createElement('script');
+  realChartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js';
+  realChartScript.onload = () => {
+    console.log('✅ Chart.js real cargado como mejora');
+  };
+  realChartScript.onerror = () => {
+    console.log('📊 Usando Chart.js simple (CDN no disponible)');
+  };
+  document.head.appendChild(realChartScript);
+</script>
+
 <!-- Nuestros módulos -->
 <script src="js/config.js"></script>
 <script src="js/utils.js"></script>
@@ -587,8 +605,8 @@
         <!-- Se llena dinámicamente -->
       </div>
       
-      <!-- Heatmap de Densidad -->
-      <div id="density-heatmap">
+      <!-- Gráfico Geográfico -->
+      <div id="geographic-chart">
         <!-- Se llena dinámicamente -->
       </div>
       
@@ -647,6 +665,9 @@
   // ===== SISTEMAS =====
   const drawingSystem = new DrawingSystem(map, statusEl, clipCount);
   const analytics = new Analytics();
+  
+  // Hacer analytics disponible globalmente
+  window.analytics = analytics;
 
   // ===== MODAL DE RESUMEN =====
   const modalResumen = document.getElementById('modalResumen');
@@ -916,12 +937,27 @@
     window.__region=null; 
     clipCount.textContent='—';
     
+    // 🧹 Limpiar filtro de analytics también
+    if (window.analytics) {
+      window.analytics.currentFilter = null;
+    }
+    
     // Limpiar polígono visual
     if (map.getSource('draw-polygon')) {
       map.getSource('draw-polygon').setData({ type: 'FeatureCollection', features: [] });
     }
     
+    // 🚀 FORZAR REGRESO A DATOS COMPLETOS
+    window.__currentGJ = window.__fullGJ;
+    
     applyFilter(); 
+    
+    // 🎯 Actualizar analytics si está abierto
+    if (analyticsPanel.classList.contains('show') && window.analytics && window.__fullGJ) {
+      // 🧹 Solo limpiar filtro si realmente se está limpiando todo
+      window.analytics.currentFilter = null;
+      window.analytics.initialize(window.__fullGJ);
+    }
   };
   btnApply.onclick=applyFilter; btnExport.onclick=exportFiltered;
   btnClearName.onclick=()=>{ nameSearch.value=''; applyFilter(); };
@@ -955,6 +991,17 @@
     window.__currentGJ = gj;
     ensureLayersAndSetData(gj);
     Utils.fitToData(map, gj);
+    
+    // 🔥 ACTUALIZAR ANALYTICS cuando cambian los filtros
+    if (analyticsPanel.classList.contains('show') && window.analytics) {
+      console.log('🔄 Actualizando analytics con datos filtrados');
+      // 🚀 PRESERVAR el filtro activo antes de actualizar
+      const currentFilter = window.analytics.currentFilter;
+      window.analytics.initialize(gj);
+      // 🚀 RESTAURAR el filtro después de inicializar
+      window.analytics.currentFilter = currentFilter;
+      console.log('🔄 Filtro preservado:', currentFilter);
+    }
     
     // Mensaje más informativo
     const baseMsg = `Filtrado: ${feats.length.toLocaleString()} de ${window.__fullGJ.features.length.toLocaleString()} puntos`;
