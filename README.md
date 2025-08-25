@@ -1,13 +1,50 @@
-# 🗺️ León GTO - Análisis Empresarial DENUE
+# 🗺️ León GTO - Plataforma Interactiva de Negocios
 
-Un sistema avanzado de análisis geoespacial para visualizar y analizar datos empresariales de León, Guanajuato usando la API del Directorio Estadístico Nacional de Unidades Económicas (DENUE) del INEGI.
+> **Dashboard interactivo avanzado** que visualiza **106,844+ negocios** de León, Guanajuato usando datos oficiales DENUE del INEGI con **analytics en tiempo real, gráficos clickeables y filtros inteligentes**.
 
-## 🚀 Características Principales
+## 🚀 **Demo en Vivo**
+**📍 [Ver Proyecto Live](https://tu-url-deployment.vercel.app)** *(próximamente)*
 
-- **📊 Visualización Dinámica**: Múltiples modos de visualización (puntos individuales, clusters, heatmap)
-- **🎯 Análisis Regional**: Dibuja polígonos para analizar negocios en áreas específicas
-- **🔍 Filtrado Avanzado**: Busca por nombre, tipo de negocio, o clase de actividad económica
-- **⚡ Alto Rendimiento**: Soporte para PMTiles (vector tiles) para datasets masivos
+## ✨ **Nuevas Características (2025)**
+
+### 🎯 **Dashboard Analytics Interactivo**
+- **📊 Gráficos Clickeables**: Filtrado directo desde gráficos de barras interactivos
+- **🔄 Sistema Toggle**: Click para filtrar, click otra vez para remover filtro
+- **📈 KPIs Dinámicos**: Estadísticas en tiempo real que se actualizan con filtros
+- **🎨 Colores Consistentes**: Sistema inteligente de colores por sector empresarial
+- **⚡ Chart.js Fallback**: Sistema robusto con fallback HTML personalizado
+
+### 🗺️ **Mapa Avanzado Existente**
+
+### 🗺️ **Mapa Avanzado Existente**
+- **📊 Visualización Dinámica**: Múltiples modos (puntos individuales, clusters, heatmap)
+- **🎯 Análisis Regional**: Dibuja polígonos para analizar áreas específicas  
+- **🔍 Filtrado Avanzado**: Por nombre, tipo de negocio, clase económica
+- **⚡ Alto Rendimiento**: PMTiles (vector tiles) para datasets masivos
+
+## 💡 **Innovación Técnica Destacada**
+
+### **Sistema Chart.js Fallback Inteligente**
+```javascript
+// Graceful degradation: CDN fail → Custom HTML charts
+if (!Chart) {
+  loadCustomChartSystem(); // Fallback funcional completo
+}
+```
+
+### **Gestión de Estado Avanzada**
+```javascript  
+// Preserva filtros del usuario across analytics updates
+const preserveFilterState = (currentFilter) => {
+  // Smart state management para UX seamless
+};
+```
+
+## 📊 **Datos Reales León, GTO**
+- **106,844 negocios** georeferenciados
+- **783 clasificaciones** empresariales únicas
+- **Sector líder**: Comercio al por menor (10,169 negocios)
+- **Datos oficiales**: API INEGI DENUE actualizada
 - **💾 Gestión de Datos**: Exportación en GeoJSON y CSV
 - **📱 Responsive**: Interfaz adaptada para diferentes dispositivos
 
