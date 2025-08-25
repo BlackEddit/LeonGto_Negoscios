@@ -31,6 +31,7 @@
 <script src="js/data.js"></script>
 <script src="js/drawing.js"></script>
 <script src="js/analytics.js"></script>
+<script src="js/data-explorer.js"></script>
 
 <style>
   :root{
@@ -506,6 +507,10 @@
       <button id="btnAnalytics" class="ghost" style="background: #10b981; color: white;">📊 Dashboard Analytics</button>
     </div>
 
+    <div class="row">
+      <button id="btnExploreData" class="ghost" style="background: #f59e0b; color: white;">🔍 Explorar Datos (Dev)</button>
+    </div>
+
     <div class="hint" id="status"></div>
     <div class="hint">
       Atajos: <span class="kbd">F</span> filtros · <span class="kbd">I</span> info · <span class="kbd">H</span> heatmap ·
@@ -690,6 +695,7 @@
   // ===== PANEL DE ANALYTICS =====
   const analyticsPanel = document.getElementById('analyticsPanel');
   const btnAnalytics = document.getElementById('btnAnalytics');
+  const btnExploreData = document.getElementById('btnExploreData');
   const closeAnalytics = document.getElementById('closeAnalytics');
   const exportAnalytics = document.getElementById('exportAnalytics');
   
@@ -700,6 +706,17 @@
       analyticsPanel.classList.add('show');
     } else {
       alert('⚠️ Carga un dataset GeoJSON primero para ver analytics');
+    }
+  };
+  
+  // Explorar estructura de datos (temporal para desarrollo)
+  btnExploreData.onclick = () => {
+    if (window.__MODE === 'geojson' && window.__fullGJ) {
+      const results = window.exploreData();
+      console.log('📋 Resumen ejecutivo:', results);
+      alert(`🔍 Exploración completa!\n\n📊 ${results.totalRecords.toLocaleString()} registros\n🏘️ ${results.uniqueCounts.colonias} colonias únicas\n📈 ${results.uniqueCounts.clases} tipos de negocio\n\nRevisa la consola para detalles completos`);
+    } else {
+      alert('⚠️ Carga un dataset GeoJSON primero');
     }
   };
   
