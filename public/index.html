@@ -47,6 +47,7 @@
 <script src="js/config.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/data.js"></script>
+<script src="js/data-loader.js"></script>
 <script src="js/drawing.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/data-explorer.js"></script>
@@ -831,7 +832,7 @@
       filesSel.appendChild(opt);
     }
     
-    // Preferir automáticamente el .geojson más nuevo
+    // Preferir automáticamente el .geojson más nuevo (más pequeño para producción)
     const opts = Array.from(filesSel.options);
     const preferred = opts.find(o => o.value.toLowerCase().endsWith('.geojson')) || opts[0];
     if (preferred) filesSel.value = preferred.value;
@@ -853,50 +854,43 @@
     await loadGeoJSON(name);
   }
 
-  // Cargar GeoJSON
+  // Cargar GeoJSON con DataLoader optimizado
   async function loadGeoJSON(name) {
     window.__MODE = 'geojson';
     modeBadge.textContent = 'Modo: GeoJSON';
-    statusEl.textContent = `Cargando ${name}…`;
+    statusEl.textContent = `Cargando ${name}… (optimizado para producción)`;
     
-    const res = await fetch('/data/' + encodeURIComponent(name));
-    if (!res.ok) { 
-      statusEl.textContent = 'No pude descargar /data/' + name + ' (' + res.status + ')'; 
-      return; 
-    }
-    
-    const text = await res.text();
-    let any;
-    try { 
-      any = JSON.parse(text); 
-    } catch { 
-      statusEl.textContent = 'Archivo no es JSON válido.'; 
-      return; 
-    }
+    try {
+      // Usar DataLoader inteligente
+      const fullGJ = await window.dataLoader.loadData(name);
+      
+      if (!fullGJ) {
+        statusEl.textContent = 'No pude cargar los datos. Inténtalo de nuevo.';
+        return;
+      }
 
-    const fullGJ = DataProcessor.normalizeAnyToGeoJSON(any);
-    if (!fullGJ) { 
-      statusEl.textContent = 'No pude convertir a GeoJSON.'; 
-      return; 
-    }
-    
-    window.__fullGJ = fullGJ;
-    window.__currentGJ = fullGJ;
-    window.__region = null;
+      window.__fullGJ = fullGJ;
+      window.__currentGJ = fullGJ;
+      window.__region = null;
 
-    const stats = DataProcessor.buildClassStats(fullGJ);
-    window.__classList = stats.list;
-    populateClassSelect(stats.list, classSearch.value || '');
-    classStatsEl.textContent = `Clases únicas: ${stats.list.length} • Puntos totales: ${stats.total.toLocaleString()}`;
+      const stats = DataProcessor.buildClassStats(fullGJ);
+      window.__classList = stats.list;
+      populateClassSelect(stats.list, classSearch.value || '');
+      classStatsEl.textContent = `Clases únicas: ${stats.list.length} • Puntos totales: ${stats.total.toLocaleString()}`;
 
-    ensureLayersAndSetData(fullGJ);
-    Utils.fitToData(map, fullGJ);
-    statusEl.textContent = `Cargado: ${(fullGJ.features?.length ?? 0).toLocaleString()} puntos (${name}).`;
-    clearInfo();
-    
-    // Actualizar analytics si está abierto
-    if (analyticsPanel.classList.contains('show')) {
-      analytics.initialize(fullGJ);
+      ensureLayersAndSetData(fullGJ);
+      Utils.fitToData(map, fullGJ);
+      statusEl.textContent = `Cargado: ${(fullGJ.features?.length ?? 0).toLocaleString()} puntos (${name}).`;
+      clearInfo();
+      
+      // 🚀 SIEMPRE inicializar analytics con los datos frescos
+      if (window.analytics) {
+        analytics.initialize(fullGJ);
+      }
+      
+    } catch (error) {
+      console.error('❌ Error en loadGeoJSON:', error);
+      statusEl.textContent = `Error al cargar ${name}: ${error.message}`;
     }
   }
 

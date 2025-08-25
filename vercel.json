@@ -1,0 +1,63 @@
+{
+  "version": 2,
+  "name": "leon-gto-negocios",
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/data/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ],
+  "functions": {
+    "server.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/data/(.*\\.pmtiles)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/octet-stream"
+        },
+        {
+          "key": "Accept-Ranges",
+          "value": "bytes"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, no-transform"
+        }
+      ]
+    },
+    {
+      "source": "/data/(.*\\.(json|geojson))",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=1800"
+        }
+      ]
+    }
+  ],
+  "redirects": [],
+  "rewrites": []
+}

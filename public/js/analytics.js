@@ -15,6 +15,7 @@ class Analytics {
   initialize(geoJsonData) {
     console.log('🚀 Iniciando Analytics con', geoJsonData.features?.length, 'registros');
     console.log('🔍 Filtro actual al inicializar:', this.currentFilter);
+    console.log('📊 Muestra de datos:', geoJsonData.features?.slice(0, 2));
     this.data = geoJsonData;
     this.createDashboard();
   }

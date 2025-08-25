@@ -66,6 +66,39 @@ app.get("/api/data/list", async (_req, res) => {
   }
 });
 
+// Información específica de un archivo
+app.get("/api/data/info/:filename", async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const filePath = path.join(DATA, filename);
+    
+    // Verificar que el archivo exista y sea permitido
+    const ext = path.extname(filename).toLowerCase();
+    if (![".geojson", ".json", ".pmtiles"].includes(ext)) {
+      return res.status(400).json({ ok: false, error: "Tipo de archivo no permitido" });
+    }
+
+    const stats = await fs.stat(filePath);
+    
+    res.json({
+      ok: true,
+      name: filename,
+      size: stats.size,
+      sizeMB: Math.round(stats.size / (1024 * 1024) * 100) / 100,
+      lastModified: stats.mtimeMs,
+      isLarge: stats.size > 50 * 1024 * 1024, // 50MB
+      recommendChunking: stats.size > 30 * 1024 * 1024 // 30MB
+    });
+    
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      res.status(404).json({ ok: false, error: "Archivo no encontrado" });
+    } else {
+      res.status(500).json({ ok: false, error: String(error) });
+    }
+  }
+});
+
 // SPA fallback
 app.get("*", (_req, res) => res.sendFile(path.join(PUB, "index.html")));
 
