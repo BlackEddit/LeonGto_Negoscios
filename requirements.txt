@@ -1,0 +1,3 @@
+# Python requirements for the project
+http.server
+# Add any other Python packages you might need
