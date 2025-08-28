@@ -1,4 +1,11 @@
 // ===== CONFIGURACIÓN =====
+// config.js - Es el archivo de configuración global:
+// Define constantes y configuraciones que se usan en toda la aplicación
+// Coordenadas por defecto del mapa (centro en León)
+// Configuración de almacenamiento local (localStorage)
+// Colores de la interfaz
+// Definición de los mapas base (OSM y CARTO)
+
 const CONFIG = {
   // Coordenadas de León GTO
   DEFAULT_CENTER: [-101.67374, 21.12908],

@@ -1,6 +1,10 @@
 /**
  * Sistema de Analytics y Métricas
  * Proporciona análisis estadístico avanzado de datos empresariales
+ * analytics.js - Maneja el panel de analytics
+ * 
+ * Genera gráficos y estadísticas
+Procesa los datos para mostrar insights
  */
 class Analytics {
   constructor() {

@@ -1,4 +1,9 @@
 // ===== SISTEMA DE DATOS GEOJSON =====
+// data.js - Contiene funciones auxiliares para el manejo de datos:
+// Procesamiento de datos
+// Transformaciones de formato
+// Funciones de utilidad para los datos
+
 class DataProcessor {
   // Normalizar cualquier formato a GeoJSON
   static normalizeAnyToGeoJSON(any) {

@@ -1,4 +1,7 @@
 // ===== SISTEMA DE DIBUJO =====
+// drawing.js - Maneja las funcionalidades de dibujo:
+// Permite dibujar polígonos para recortar regiones
+// Gestiona la interacción del usuario al dibujar en el mapa
 class DrawingSystem {
   constructor(map, statusEl, clipCount) {
     this.map = map;

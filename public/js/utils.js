@@ -1,4 +1,8 @@
 // ===== UTILIDADES GENERALES =====
+//  Funciones de utilidad general:
+// Funciones helper que se usan en varios archivos
+// Utilidades para el mapa
+// Funciones auxiliares comunes
 class Utils {
   // Escapar HTML
   static esc(s) {
