@@ -2,7 +2,7 @@
 const CONFIG = {
 
     // Archivo por defecto a cargar cuando no hay UI de selección
-  DEFAULT_FILE: 'denue.pmtiles',
+  DEFAULT_FILE: 'denue_leon_full_2025-08-23T09-24-59-110Z.geojson',
 
   // Coordenadas de León GTO
   DEFAULT_CENTER: [-101.67374, 21.12908],
