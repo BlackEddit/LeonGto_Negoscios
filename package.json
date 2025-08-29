@@ -11,9 +11,12 @@
     "dump:full": "node scripts/dump_denue_leon.js --mode=full"
   },
   "dependencies": {
+    "@loaders.gl/pmtiles": "^4.3.4",
     "compression": "^1.8.1",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
+    "geojson-vt": "^4.0.2",
+    "mapbox-vector-tile": "^0.3.0",
     "node-fetch": "^3.3.2"
   }
 }
