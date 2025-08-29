@@ -1,5 +1,9 @@
 // ===== CONFIGURACIÓN =====
 const CONFIG = {
+
+    // Archivo por defecto a cargar cuando no hay UI de selección
+  DEFAULT_FILE: 'denue_leon_full_2025-08-23T09-24-59-110Z.geojson',
+
   // Coordenadas de León GTO
   DEFAULT_CENTER: [-101.67374, 21.12908],
   DEFAULT_ZOOM: 12,
@@ -18,7 +22,8 @@ const CONFIG = {
     SUCCESS: '#10b981',
     DRAW_FILL: '#3b82f6',
     DRAW_STROKE: '#1d4ed8'
-  }
+  },
+
 };
 
 // ===== BASEMAPS =====

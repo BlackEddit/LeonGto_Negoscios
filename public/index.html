@@ -65,14 +65,14 @@
       <button id="btnHide" class="secondary">⬅️ Ocultar panel</button>
     </div>
 
-    <div class="grid2">
+    <!-- <div class="grid2">
       <select id="files"></select>
       <button id="refresh" class="secondary">🔄 Recargar</button>
     </div>
     <div class="grid2">
       <button id="load">📥 Cargar seleccionado</button>
       <button id="fit" class="secondary">🧭 Centrar</button>
-    </div>
+    </div> -->
 
     <div class="row">
       <b>Mapa base</b>
@@ -359,6 +359,25 @@
   if (localStorage.getItem(CONFIG.PANEL_KEY) === '1') panel.classList.add('hidden');
   btnHide.onclick = () => { panel.classList.add('hidden'); localStorage.setItem(CONFIG.PANEL_KEY, '1'); };
   btnShow.onclick = () => { panel.classList.remove('hidden'); localStorage.setItem(CONFIG.PANEL_KEY, '0'); };
+
+  // Si no existen los controles de selección de archivo, cargar el predeterminado
+  if (!filesSel || !btnRefresh || !btnLoad || !btnFit) {
+    console.log('📄 Cargando archivo predeterminado:', CONFIG.DEFAULT_FILE);
+    if (CONFIG.DEFAULT_FILE.toLowerCase().endsWith('.pmtiles')) {
+      loadPMTiles(CONFIG.DEFAULT_FILE);
+    } else {
+      loadGeoJSON(CONFIG.DEFAULT_FILE);
+    }
+  } else {
+    // Si existen los controles, usar el flujo normal
+    btnRefresh.onclick = listFiles;
+    btnLoad.onclick = loadSelected;
+    btnFit.onclick = () => { 
+      if (window.__MODE === 'geojson' && window.__currentGJ) Utils.fitToData(map, window.__currentGJ); 
+    };
+    // Cargar lista inicial
+    listFiles();
+  }
 
   // Cambio de mapa base
   baseSel.onchange = () => {
