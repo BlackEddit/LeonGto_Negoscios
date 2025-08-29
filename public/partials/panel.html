@@ -1,0 +1,75 @@
+    <div class="grid2">
+      <div class="title">Datos en <code>/data</code></div>
+      <button id="btnHide" class="secondary">⬅️ Ocultar panel</button>
+    </div>
+<!-- 
+    <div class="grid2">
+      <select id="files"></select>
+      <button id="refresh" class="secondary">🔄 Recargar</button>
+    </div>
+    <div class="grid2">
+      <button id="load">📥 Cargar seleccionado</button>
+      <button id="fit" class="secondary">🧭 Centrar</button>
+    </div> -->
+
+    <div class="row">
+      <b>Mapa base</b>
+      <select id="basemap">
+        <option value="osm">OSM Standard</option>
+        <option value="carto">CARTO Voyager</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="grid2">
+        <b>Visualización (GeoJSON)</b>
+        <select id="viewMode">
+          <option value="points">🔵 Puntos individuales</option>
+          <option value="clusters">🟦 Clusters</option>
+          <option value="heat">🔥 Heatmap</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <input id="nameSearch" type="text" placeholder="🔎 Buscar por nombre… (Enter)" />
+        <button id="btnClearName" class="ghost">✖</button>
+      </div>
+      <div class="hint">Filtrar por “Clase_actividad” (Ctrl/⌘ multiselección). Escribe para buscar dentro de la lista.</div>
+      <input id="classSearch" type="text" placeholder="Buscar clase…" />
+      <select id="classSel" multiple></select>
+      <div class="grid3">
+        <button id="applyFilter">✅ Aplicar</button>
+        <button id="clearFilter" class="secondary">🧹 Limpiar</button>
+        <button id="export" class="ghost">⬇️ Exportar</button>
+      </div>
+      <div class="small" id="classStats"></div>
+    </div>
+
+    <div class="row">
+      <b>Recorte por región (dibuja un polígono)</b>
+      <div class="grid3">
+        <button id="drawPoly" class="ghost">✏️ Dibujar</button>
+        <button id="clearPoly" class="secondary">🗑️ Limpiar región</button>
+        <button id="exportClip" class="ghost">⬇️ Exportar recorte</button>
+      </div>
+      <div class="small">Región: <span class="badge" id="clipCount">—</span></div>
+    </div>
+
+    <div class="row">
+      <b>PMTiles (vector tiles — ultra rápido)</b>
+      <div class="hint">Selecciona un <code>.pmtiles</code> en la lista y dale “Cargar seleccionado”.</div>
+      <div class="small"><span class="badge" id="modeBadge">Modo: GeoJSON</span></div>
+    </div>
+
+    <div class="row">
+      <button id="btnAnalytics" class="ghost" style="background: #10b981; color: white;">📊 Dashboard Analytics</button>
+    </div>
+
+    <div class="row">
+      <button id="btnExploreData" class="ghost" style="background: #f59e0b; color: white;">🔍 Explorar Datos (Dev)</button>
+    </div>
+
+    <div class="hint" id="status"></div>
+    <div class="hint">
+      Atajos: <span class="kbd">F</span> filtros · <span class="kbd">I</span> info · <span class="kbd">H</span> heatmap ·
+      <span class="kbd">A</span> analytics · <span class="kbd">C</span> centrar · <span class="kbd">/</span> buscar nombre
+    </div>

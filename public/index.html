@@ -52,174 +52,34 @@
 <script src="js/drawing.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/data-explorer.js"></script>
+<script src="js/main.js"></script>
 </head>
 <body>
   <div id="map"></div>
 
   <!-- Panel izquierdo -->
-  <div id="panel" class="panel">
-    <div class="grid2">
-      <div class="title">Datos en <code>/data</code></div>
-      <button id="btnHide" class="secondary">⬅️ Ocultar panel</button>
-    </div>
-<!-- 
-    <div class="grid2">
-      <select id="files"></select>
-      <button id="refresh" class="secondary">🔄 Recargar</button>
-    </div>
-    <div class="grid2">
-      <button id="load">📥 Cargar seleccionado</button>
-      <button id="fit" class="secondary">🧭 Centrar</button>
-    </div> -->
+      <div id="panel" class="panel"></div>
+    <button id="btnShow" class="fab">🎛️ Filtros</button>
 
-    <div class="row">
-      <b>Mapa base</b>
-      <select id="basemap">
-        <option value="osm">OSM Standard</option>
-        <option value="carto">CARTO Voyager</option>
-      </select>
-    </div>
+    <!-- Panel derecho (detalle + guardados) -->
+    <aside id="info" class="info"></aside>
 
-    <div class="row">
-      <div class="grid2">
-        <b>Visualización (GeoJSON)</b>
-        <select id="viewMode">
-          <option value="points">🔵 Puntos individuales</option>
-          <option value="clusters">🟦 Clusters</option>
-          <option value="heat">🔥 Heatmap</option>
-        </select>
-      </div>
-      <div class="grid2">
-        <input id="nameSearch" type="text" placeholder="🔎 Buscar por nombre… (Enter)" />
-        <button id="btnClearName" class="ghost">✖</button>
-      </div>
-      <div class="hint">Filtrar por “Clase_actividad” (Ctrl/⌘ multiselección). Escribe para buscar dentro de la lista.</div>
-      <input id="classSearch" type="text" placeholder="Buscar clase…" />
-      <select id="classSel" multiple></select>
-      <div class="grid3">
-        <button id="applyFilter">✅ Aplicar</button>
-        <button id="clearFilter" class="secondary">🧹 Limpiar</button>
-        <button id="export" class="ghost">⬇️ Exportar</button>
-      </div>
-      <div class="small" id="classStats"></div>
-    </div>
+    <!-- MODAL DE RESUMEN DE REGIÓN -->
+    <div id="modalResumen" class="modal-overlay"></div>
 
-    <div class="row">
-      <b>Recorte por región (dibuja un polígono)</b>
-      <div class="grid3">
-        <button id="drawPoly" class="ghost">✏️ Dibujar</button>
-        <button id="clearPoly" class="secondary">🗑️ Limpiar región</button>
-        <button id="exportClip" class="ghost">⬇️ Exportar recorte</button>
-      </div>
-      <div class="small">Región: <span class="badge" id="clipCount">—</span></div>
-    </div>
-
-    <div class="row">
-      <b>PMTiles (vector tiles — ultra rápido)</b>
-      <div class="hint">Selecciona un <code>.pmtiles</code> en la lista y dale “Cargar seleccionado”.</div>
-      <div class="small"><span class="badge" id="modeBadge">Modo: GeoJSON</span></div>
-    </div>
-
-    <div class="row">
-      <button id="btnAnalytics" class="ghost" style="background: #10b981; color: white;">📊 Dashboard Analytics</button>
-    </div>
-
-    <div class="row">
-      <button id="btnExploreData" class="ghost" style="background: #f59e0b; color: white;">🔍 Explorar Datos (Dev)</button>
-    </div>
-
-    <div class="hint" id="status"></div>
-    <div class="hint">
-      Atajos: <span class="kbd">F</span> filtros · <span class="kbd">I</span> info · <span class="kbd">H</span> heatmap ·
-      <span class="kbd">A</span> analytics · <span class="kbd">C</span> centrar · <span class="kbd">/</span> buscar nombre
-    </div>
-  </div>
-  <button id="btnShow" class="fab">🎛️ Filtros</button>
-
-  <!-- Panel derecho (detalle + guardados) -->
-  <aside id="info" class="info">
-    <div class="title">Selecciona un punto</div>
-    <div class="muted">Click a un punto verde/azul para ver detalle. Puedes asignar <b>alias</b> y guardarlo.</div>
-    <div id="detail"></div>
-    <div class="row">
-      <b>Guardados (alias)</b>
-      <div class="list" id="savedList"></div>
-      <div class="grid3">
-        <button id="exportSaved" class="ghost">⬇️ Exportar guardados</button>
-        <label class="ghost" style="display:flex;align-items:center;justify-content:center;gap:6px; cursor:pointer;">
-          ⬆️ Importar<input id="importSaved" type="file" accept=".json" style="display:none">
-        </label>
-        <button id="clearSaved" class="secondary">🗑️ Limpiar</button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MODAL DE RESUMEN DE REGIÓN -->
-  <div id="modalResumen" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>🎯 Análisis de la Región</h2>
-        <button id="closeModal" class="modal-close">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="resumen-stats">
-          <h3 id="totalNegocios">0</h3>
-          <div class="resumen-subtitle">negocios encontrados en esta área</div>
-          <div style="font-size: 14px; color: #64748b; margin-top: 8px;">
-            de <span id="totalGeneral">0</span> negocios totales en León
-          </div>
-        </div>
-        
-        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-          <h4 style="margin: 0; color: #1e293b;">📊 Tipos de negocios en el área:</h4>
-          <div style="font-size: 14px; color: #64748b;">
-            Mostrando <span id="tiposCount">0</span> tipos diferentes
-          </div>
-        </div>
-        
-        <div id="negociosLista" class="negocios-grid">
-          <!-- Aquí se llenarán los negocios -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PANEL DE ANALYTICS -->
-  <div id="analyticsPanel" class="analytics-panel">
-    <div class="analytics-header">
-      <h2>📊 Dashboard Analytics</h2>
-      <button id="closeAnalytics" class="analytics-close">✕</button>
-    </div>
-    <div class="analytics-content">
-      <!-- KPIs Principales -->
-      <div id="analytics-kpis">
-        <div class="chart-placeholder">
-          <h3>⚡ Cargando métricas...</h3>
-          <div class="chart-note">Selecciona un dataset para ver analytics</div>
-        </div>
-      </div>
-      
-      <!-- Gráfico de Sectores -->
-      <div id="sector-chart">
-        <!-- Se llena dinámicamente -->
-      </div>
-      
-      <!-- Gráfico Geográfico -->
-      <div id="geographic-chart">
-        <!-- Se llena dinámicamente -->
-      </div>
-      
-      <!-- Análisis de Tendencias -->
-      <div id="trend-analysis">
-        <!-- Se llena dinámicamente -->
-      </div>
-    </div>
-    <div class="analytics-actions">
-      <button id="exportAnalytics" class="btn-analytics">📋 Exportar Analytics</button>
-    </div>
-  </div>
+    <!-- PANEL DE ANALYTICS -->
+    <div id="analyticsPanel" class="analytics-panel"></div>
 
 <script>
+  (async () => {
+    await Promise.all([
+      loadPartial('partials/panel.html', '#panel'),
+      loadPartial('partials/info.html', '#info'),
+      loadPartial('partials/modal-resumen.html', '#modalResumen'),
+      loadPartial('partials/analytics.html', '#analyticsPanel')
+    ]);
+
+
   // ===== INICIALIZACIÓN =====
   const map = new maplibregl.Map({ 
     container: 'map', 
@@ -1026,6 +886,7 @@
       loadSelected();
     }
   });
+  })();
 </script>
 </body>
 </html>
