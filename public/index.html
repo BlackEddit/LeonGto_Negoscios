@@ -251,7 +251,7 @@
   const btnClearName = document.getElementById('btnClearName');
   const classSearch = document.getElementById('classSearch');
   const classSel = document.getElementById('classSel');
-  const btnApply = document.getElementById('applyFilter');
+  //const btnApply = document.getElementById('applyFilter');
   const btnClear = document.getElementById('clearFilter');
   const btnExport = document.getElementById('export');
   const classStatsEl = document.getElementById('classStats');
@@ -572,81 +572,130 @@
       window.analytics.initialize(window.__fullGJ);
     }
   };
-  btnApply.onclick=applyFilter; btnExport.onclick=exportFiltered;
-  btnClearName.onclick=()=>{ nameSearch.value=''; applyFilter(); };
-
-  function applyFilter() {
+  
+ //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+function applyFilter() {
+    // 1. Muestra en consola el estado actual del filtro
     console.log('🔍 applyFilter iniciado:', { mode: window.__MODE, hasData: !!window.__fullGJ, hasRegion: !!window.__region });
-    
+
+    // 2. Solo ejecuta el filtro si estás en modo GeoJSON y hay datos cargados
     if (window.__MODE !== 'geojson' || !window.__fullGJ) return;
-    
+
+    // 3. Obtiene las clases seleccionadas en el filtro (del select múltiple)
     const selected = Array.from(classSel.selectedOptions).map(o => o.value);
+
+    // 4. Obtiene el texto de búsqueda por nombre (del input)
     const needle = (nameSearch.value || '').trim().toLowerCase();
+
+    // 5. Convierte las clases seleccionadas a un Set para búsqueda rápida
     const sel = new Set(selected);
 
+    // 6. Obtiene la región dibujada (si existe) para filtrar espacialmente
     const region = window.__region; // GeoJSON Polygon|MultiPolygon o null
     console.log('🎯 Filtrando con región:', region);
-    
+
+    // 7. Filtra los puntos del GeoJSON según los filtros activos
     const feats = window.__fullGJ.features.filter(f => {
-      const n = (f.properties?.__N?.Nombre || '').toLowerCase();
-      const c = (f.properties?.__N?.Clase || '').trim() || '(sin clase)';
-      const byName = !needle || n.includes(needle);
-      const byClass = !selected.length || sel.has(c);
-      if (!(byName && byClass)) return false;
-      if (!region) return true;
-      const pt = turf.point(f.geometry.coordinates);
-      return turf.booleanPointInPolygon(pt, region);
+        // 7a. Obtiene el nombre y la clase del negocio (usa los campos correctos)
+        const n = (f.properties.nombre || f.properties?.__N?.Nombre || '').toLowerCase();
+        const c = (f.properties.clase || f.properties?.__N?.Clase || '').trim() || '(sin clase)';
+
+        // 7b. Filtro por nombre: si hay texto, solo deja los que lo contienen
+        const byName = !needle || n.includes(needle);
+
+        // 7c. Filtro por clase: si hay clases seleccionadas, solo deja los que coinciden
+        const byClass = !selected.length || sel.has(c);
+
+        // 7d. Si no pasa ambos filtros, lo descarta
+        if (!(byName && byClass)) return false;
+
+        // 7e. Si no hay región dibujada, lo acepta
+        if (!region) return true;
+
+        // 7f. Si hay región, verifica si el punto está dentro usando Turf.js
+        const pt = turf.point(f.geometry.coordinates);
+        return turf.booleanPointInPolygon(pt, region);
     });
 
+    // 8. Muestra en consola cuántos puntos quedaron después del filtro
     console.log('📊 Puntos filtrados:', feats.length, 'de', window.__fullGJ.features.length);
-    
+
+    // 9. Crea un nuevo GeoJSON solo con los puntos filtrados
     const gj = { type: 'FeatureCollection', features: feats };
+
+    // 10. Actualiza la variable global con los datos filtrados
     window.__currentGJ = gj;
+
+    // 11. Actualiza las capas del mapa para mostrar solo los puntos filtrados
     ensureLayersAndSetData(gj);
+
+    // 12. Ajusta el zoom del mapa para que se vea bien el área filtrada
     Utils.fitToData(map, gj);
-    
-    // 🔥 ACTUALIZAR ANALYTICS cuando cambian los filtros
+
+    // 13. Si el panel de analytics está abierto, actualiza los gráficos con los datos filtrados
     if (analyticsPanel.classList.contains('show') && window.analytics) {
-      console.log('🔄 Actualizando analytics con datos filtrados');
-      // 🚀 PRESERVAR el filtro activo antes de actualizar
-      const currentFilter = window.analytics.currentFilter;
-      window.analytics.initialize(gj);
-      // 🚀 RESTAURAR el filtro después de inicializar
-      window.analytics.currentFilter = currentFilter;
-      console.log('🔄 Filtro preservado:', currentFilter);
+        console.log('🔄 Actualizando analytics con datos filtrados');
+        // Guarda el filtro actual, actualiza, y lo restaura
+        const currentFilter = window.analytics.currentFilter;
+        window.analytics.initialize(gj);
+        window.analytics.currentFilter = currentFilter;
+        console.log('🔄 Filtro preservado:', currentFilter);
     }
-    
-    // Mensaje más informativo
+
+    // 14. Prepara un mensaje informativo para el usuario
     const baseMsg = `Filtrado: ${feats.length.toLocaleString()} de ${window.__fullGJ.features.length.toLocaleString()} puntos`;
     let extraInfo = '';
-    
+
+    // 15. Si hay región, muestra el top de clases en esa área y actualiza el contador
     if (region) {
-      // Análisis de lo que hay en la región
-      const classes = new Map();
-      feats.forEach(f => {
-        const clase = f.properties?.__N?.Clase || '(sin clase)';
-        classes.set(clase, (classes.get(clase) || 0) + 1);
-      });
-      
-      const topClasses = Array.from(classes.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3)
-        .map(([k, v]) => `${k} (${v})`)
-        .join(', ');
-        
-      extraInfo = ` | 🎯 En región: ${topClasses}`;
-      clipCount.textContent = `${feats.length.toLocaleString()} pts en región`;
-      console.log('📈 Top clases en región:', topClasses);
+        // Cuenta cuántos negocios hay de cada clase en la región
+        const classes = new Map();
+        feats.forEach(f => {
+            const clase = f.properties.clase || '(sin clase)';
+            classes.set(clase, (classes.get(clase) || 0) + 1);
+        });
+
+        // Saca el top 3 de clases más frecuentes
+        const topClasses = Array.from(classes.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([k, v]) => `${k} (${v})`)
+            .join(', ');
+
+        extraInfo = ` | 🎯 En región: ${topClasses}`;
+        clipCount.textContent = `${feats.length.toLocaleString()} pts en región`;
+        console.log('📈 Top clases en región:', topClasses);
     } else {
-      clipCount.textContent = '—';
+        clipCount.textContent = '—';
     }
-    
+
+    // 16. Actualiza el mensaje de estado en la interfaz
     statusEl.textContent = baseMsg + extraInfo;
+
+    // 17. Limpia el panel de detalle de punto seleccionado
     clearInfo();
-  }
+}
 
   // Hacer applyFilter disponible globalmente
-  window.applyFilter = applyFilter;
+  // window.applyFilter = applyFilter;
+  // // Eventos de filtros, recuerda que applyFilter ya está definido arriba, y siempre se debe definir primero
+  // btnApply.onclick=applyFilter; 
+
+  document.addEventListener('DOMContentLoaded', function() {
+  const btnApply = document.getElementById('applyFilter');
+  btnApply.onclick = applyFilter;
+  btnExport.onclick = exportFiltered;
+  btnClearName.onclick = () => { nameSearch.value = ''; applyFilter(); };
+  
+});
+  
+  
+  btnExport.onclick=exportFiltered;
+  btnClearName.onclick=()=>{ nameSearch.value=''; applyFilter(); };
+
 
   function exportFiltered(){
     if(window.__MODE!=='geojson' || !window.__currentGJ) return;
