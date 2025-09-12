@@ -1036,55 +1036,6 @@ window.applyFilter = applyFilter;
     // El archivo predeterminado ya se carga automáticamente en DOMContentLoaded
     console.log('Mapa cargado - datos ya disponibles desde configuración predeterminada');
   });
-
-  // ===== DIAGNÓSTICO COMPLETO =====
-  console.log('🔍 === DIAGNÓSTICO INICIO ===');
-
-  // 1. Verificar que el botón existe
-  const debugBtn = document.getElementById('applyFilter');
-  console.log('1. Botón existe:', !!debugBtn, debugBtn);
-
-  // 2. Verificar que la función existe
-  console.log('2. Función applyFilter existe:', typeof applyFilter);
-  console.log('3. Función window.applyFilter existe:', typeof window.applyFilter);
-
-  // 3. Verificar la variable global btnApply
-  console.log('4. Variable btnApply existe:', typeof btnApply, btnApply);
-
-  // 4. Verificar si ya tiene evento asignado
-  if (debugBtn) {
-    console.log('5. Botón tiene onclick asignado:', !!debugBtn.onclick);
-    console.log('6. Contenido del onclick:', debugBtn.onclick);
-  }
-
-  // 5. Asignar evento manualmente y verificar
-  if (debugBtn) {
-    console.log('7. Asignando evento manualmente...');
-    debugBtn.onclick = function() {
-      console.log('🎯 EVENTO DISPARADO - función manual');
-      applyFilter();
-    };
-    console.log('8. Evento asignado, onclick ahora es:', debugBtn.onclick);
-  }
-
-  // 6. Simular clic programático
-  setTimeout(() => {
-    if (debugBtn) {
-      console.log('9. Simulando clic programático...');
-      debugBtn.click();
-    }
-  }, 2000);
-
-  // Capturar TODOS los clics en el documento
-  document.addEventListener('click', function(e) {
-    console.log('👆 Clic detectado en:', e.target.id, e.target.tagName, e.target);
-    if (e.target.id === 'applyFilter') {
-      console.log('🎯 CLIC EN BOTÓN APLICAR DETECTADO');
-    }
-  });
-
-  console.log('🔍 === DIAGNÓSTICO FIN ===');
-
 </script>
 </body>
 </html>
