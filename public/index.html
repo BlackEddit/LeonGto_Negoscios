@@ -235,10 +235,6 @@
   const panel = document.getElementById('panel');
   const btnHide = document.getElementById('btnHide');
   const btnShow = document.getElementById('btnShow');
-  const filesSel = document.getElementById('files');
-  const btnRefresh = document.getElementById('refresh');
-  const btnLoad = document.getElementById('load');
-  const btnFit = document.getElementById('fit');
   const baseSel = document.getElementById('basemap');
   const statusEl = document.getElementById('status');
   const tglHeat = document.getElementById('tglHeat');
@@ -251,7 +247,7 @@
   const btnClearName = document.getElementById('btnClearName');
   const classSearch = document.getElementById('classSearch');
   const classSel = document.getElementById('classSel');
-  //const btnApply = document.getElementById('applyFilter');
+  const btnApply = document.getElementById('applyFilter');
   const btnClear = document.getElementById('clearFilter');
   const btnExport = document.getElementById('export');
   const classStatsEl = document.getElementById('classStats');
@@ -360,23 +356,12 @@
   btnHide.onclick = () => { panel.classList.add('hidden'); localStorage.setItem(CONFIG.PANEL_KEY, '1'); };
   btnShow.onclick = () => { panel.classList.remove('hidden'); localStorage.setItem(CONFIG.PANEL_KEY, '0'); };
 
-  // Si no existen los controles de selección de archivo, cargar el predeterminado
-  if (!filesSel || !btnRefresh || !btnLoad || !btnFit) {
-    console.log('📄 Cargando archivo predeterminado:', CONFIG.DEFAULT_FILE);
-    if (CONFIG.DEFAULT_FILE.toLowerCase().endsWith('.pmtiles')) {
-      loadPMTiles(CONFIG.DEFAULT_FILE);
-    } else {
-      loadGeoJSON(CONFIG.DEFAULT_FILE);
-    }
+  // Cargar archivo predeterminado automáticamente
+  console.log('📄 Cargando archivo predeterminado:', CONFIG.DEFAULT_FILE);
+  if (CONFIG.DEFAULT_FILE.toLowerCase().endsWith('.pmtiles')) {
+    loadPMTiles(CONFIG.DEFAULT_FILE);
   } else {
-    // Si existen los controles, usar el flujo normal
-    btnRefresh.onclick = listFiles;
-    btnLoad.onclick = loadSelected;
-    btnFit.onclick = () => { 
-      if (window.__MODE === 'geojson' && window.__currentGJ) Utils.fitToData(map, window.__currentGJ); 
-    };
-    // Cargar lista inicial
-    listFiles();
+    loadGeoJSON(CONFIG.DEFAULT_FILE);
   }
 
   // Cambio de mapa base
@@ -395,12 +380,12 @@
     if (window.__MODE === 'geojson' && window.__currentGJ) exportFiltered(); 
   };
 
-  // Botones principales
-  btnRefresh.onclick = listFiles;
-  btnLoad.onclick = loadSelected;
-  btnFit.onclick = () => { 
-    if (window.__MODE === 'geojson' && window.__currentGJ) Utils.fitToData(map, window.__currentGJ); 
-  };
+  // Botones principales - referencias eliminadas (botones removidos del HTML)
+  // btnRefresh.onclick = listFiles;
+  // btnLoad.onclick = loadSelected;
+  // btnFit.onclick = () => { 
+  //   if (window.__MODE === 'geojson' && window.__currentGJ) Utils.fitToData(map, window.__currentGJ); 
+  // };
 
   // Atajos de teclado
   window.addEventListener('keydown', (e) => {
@@ -432,46 +417,7 @@
   // ===== FUNCIONES PRINCIPALES SIMPLIFICADAS =====
   
   // Listado de archivos
-  async function listFiles() {
-    statusEl.textContent = 'Buscando archivos…';
-    const data = await fetch('/api/data/list').then(r => r.json()).catch(() => null);
-    filesSel.innerHTML = '';
-    
-    if (!data || !data.ok || data.count === 0) {
-      filesSel.innerHTML = '<option>(no hay archivos)</option>';
-      statusEl.textContent = 'Coloca .geojson/.json/.pmtiles en /data';
-      return;
-    }
-    
-    for (const it of data.items) {
-      const dt = new Date(it.mtimeMs).toLocaleString();
-      const opt = document.createElement('option');
-      opt.value = it.name;
-      opt.textContent = `${it.name} — ${(it.size/1024).toFixed(1)} KB — ${dt}`;
-      filesSel.appendChild(opt);
-    }
-    
-    // Preferir automáticamente el .geojson más nuevo (más pequeño para producción)
-    const opts = Array.from(filesSel.options);
-    const preferred = opts.find(o => o.value.toLowerCase().endsWith('.geojson')) || opts[0];
-    if (preferred) filesSel.value = preferred.value;
-
-    statusEl.textContent = `Encontrados ${data.count} archivos. Seleccionado: ${filesSel.value}`;
-  }
-
-  // Cargar archivo seleccionado
-  async function loadSelected() {
-    const name = filesSel.value; 
-    if (!name || name.startsWith('(')) { 
-      statusEl.textContent = 'Selecciona un archivo de la lista.'; 
-      return; 
-    }
-    if (name.toLowerCase().endsWith('.pmtiles')) { 
-      await loadPMTiles(name); 
-      return; 
-    }
-    await loadGeoJSON(name);
-  }
+  // Funciones de listFiles() y loadSelected() eliminadas - no se necesitan sin controles de archivo
 
   // Cargar GeoJSON con DataLoader optimizado
   async function loadGeoJSON(name) {
@@ -680,12 +626,12 @@ function applyFilter() {
 }
 
   // Hacer applyFilter disponible globalmente
-  // window.applyFilter = applyFilter;
+window.applyFilter = applyFilter;
   // // Eventos de filtros, recuerda que applyFilter ya está definido arriba, y siempre se debe definir primero
   // btnApply.onclick=applyFilter; 
 
   document.addEventListener('DOMContentLoaded', function() {
-  const btnApply = document.getElementById('applyFilter');
+  // const btnApply = document.getElementById('applyFilter');
   btnApply.onclick = applyFilter;
   btnExport.onclick = exportFiltered;
   btnClearName.onclick = () => { nameSearch.value = ''; applyFilter(); };
@@ -693,8 +639,8 @@ function applyFilter() {
 });
   
   
-  btnExport.onclick=exportFiltered;
-  btnClearName.onclick=()=>{ nameSearch.value=''; applyFilter(); };
+  // btnExport.onclick=exportFiltered;
+  // btnClearName.onclick=()=>{ nameSearch.value=''; applyFilter(); };
 
 
   function exportFiltered(){
@@ -1087,15 +1033,58 @@ function applyFilter() {
 
   // Init
   map.on('load', async ()=>{
-    await listFiles();
-    // Autoload del seleccionado
-    if(filesSel.options.length && !filesSel.options[0].textContent.includes('(no hay')) {
-      // Si es PMTiles, espera lib y carga
-      const isPM = filesSel.value?.toLowerCase().endsWith('.pmtiles');
-      if (isPM) await waitForPMTiles(10000);
-      loadSelected();
+    // El archivo predeterminado ya se carga automáticamente en DOMContentLoaded
+    console.log('Mapa cargado - datos ya disponibles desde configuración predeterminada');
+  });
+
+  // ===== DIAGNÓSTICO COMPLETO =====
+  console.log('🔍 === DIAGNÓSTICO INICIO ===');
+
+  // 1. Verificar que el botón existe
+  const debugBtn = document.getElementById('applyFilter');
+  console.log('1. Botón existe:', !!debugBtn, debugBtn);
+
+  // 2. Verificar que la función existe
+  console.log('2. Función applyFilter existe:', typeof applyFilter);
+  console.log('3. Función window.applyFilter existe:', typeof window.applyFilter);
+
+  // 3. Verificar la variable global btnApply
+  console.log('4. Variable btnApply existe:', typeof btnApply, btnApply);
+
+  // 4. Verificar si ya tiene evento asignado
+  if (debugBtn) {
+    console.log('5. Botón tiene onclick asignado:', !!debugBtn.onclick);
+    console.log('6. Contenido del onclick:', debugBtn.onclick);
+  }
+
+  // 5. Asignar evento manualmente y verificar
+  if (debugBtn) {
+    console.log('7. Asignando evento manualmente...');
+    debugBtn.onclick = function() {
+      console.log('🎯 EVENTO DISPARADO - función manual');
+      applyFilter();
+    };
+    console.log('8. Evento asignado, onclick ahora es:', debugBtn.onclick);
+  }
+
+  // 6. Simular clic programático
+  setTimeout(() => {
+    if (debugBtn) {
+      console.log('9. Simulando clic programático...');
+      debugBtn.click();
+    }
+  }, 2000);
+
+  // Capturar TODOS los clics en el documento
+  document.addEventListener('click', function(e) {
+    console.log('👆 Clic detectado en:', e.target.id, e.target.tagName, e.target);
+    if (e.target.id === 'applyFilter') {
+      console.log('🎯 CLIC EN BOTÓN APLICAR DETECTADO');
     }
   });
+
+  console.log('🔍 === DIAGNÓSTICO FIN ===');
+
 </script>
 </body>
 </html>
