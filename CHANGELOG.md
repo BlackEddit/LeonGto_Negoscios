@@ -15,6 +15,27 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Machine Learning para predicciones
 - PWA con funcionalidad offline
 
+## [1.1.0] - 2025-09-16
+
+### Agregado
+- Sistema de carga adaptativa de datos
+  - Detección automática de entorno (desarrollo/producción)
+  - Modo desarrollo para datos completos
+  - Modo producción con muestra representativa de 8,500 registros
+  - Parámetro `?dev=true` para forzar modo desarrollo
+
+### Optimizado
+- Integración con Cloudflare Tunnel
+  - Acceso público sin configuración de puertos
+  - HTTPS automático
+  - Detección inteligente del entorno Cloudflare
+
+### Mejorado
+- Sistema de fallback para archivos grandes
+- Timeouts extendidos para mejor rendimiento
+- Carga progresiva de datos optimizada
+- Configuración del servidor para operación 24/7
+
 ## [1.0.0] - 2025-01-24
 
 ### Agregado

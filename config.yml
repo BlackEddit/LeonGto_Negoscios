@@ -1,0 +1,7 @@
+tunnel: mapa-leon
+credentials-file: C:\Users\%USERNAME%\.cloudflared\cert.pem
+
+ingress:
+  - hostname: mapa-leon.trycloudflare.com
+    service: http://localhost:3000
+  - service: http_status:404

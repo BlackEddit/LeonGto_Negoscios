@@ -27,21 +27,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.1.0/turf.min.js"></script>
 
 <!-- Chart.js para gráficos -->
-<script src="libs/chart-simple.js"></script>
-<script>
-  // Verificar que Chart.js esté disponible
-  console.log('✅ Chart.js Simple cargado:', typeof Chart !== 'undefined' ? 'OK' : 'FAIL');
-  
-  // Intentar cargar Chart.js real como mejora opcional
-  const realChartScript = document.createElement('script');
-  realChartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js';
-  realChartScript.onload = () => {
-    console.log('✅ Chart.js real cargado como mejora');
-  };
-  realChartScript.onerror = () => {
-    console.log('📊 Usando Chart.js simple (CDN no disponible)');
-  };
-  document.head.appendChild(realChartScript);
+<script type="module">
+  import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.js';
+  window.Chart = Chart;
+  console.log('✅ Chart.js cargado:', typeof Chart !== 'undefined' ? 'OK' : 'FAIL');
+</script>
+<script src="libs/chart-simple.js" type="module"></script>
 </script>
 
 <!-- Nuestros módulos -->
@@ -654,6 +645,12 @@ window.applyFilter = applyFilter;
   // ===== Capas GEOJSON + clicks
   function ensureLayersAndSetData(gj){
     try{
+      // Esperar a que el estilo esté cargado
+      if (!map.isStyleLoaded()) {
+        setTimeout(() => ensureLayersAndSetData(gj), 100);
+        return;
+      }
+      
       if(!map.getSource('poi')){
         // Fuente SIN clustering para puntos individuales
         map.addSource('poiPoints',{ type:'geojson', data:gj });

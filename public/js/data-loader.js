@@ -14,13 +14,21 @@ class DataLoader {
    * Detectar si estamos en producción (Vercel, Netlify, etc.)
    */
   detectProduction() {
-    return (
-      window.location.hostname !== 'localhost' &&
-      window.location.hostname !== '127.0.0.1' &&
-      !window.location.hostname.startsWith('192.168.') &&
-      !window.location.hostname.startsWith('10.') &&
-      !window.location.hostname.includes('local')
-    );
+    // Forzar modo desarrollo si hay parámetro dev=true
+    if (new URLSearchParams(window.location.search).get('dev') === 'true') {
+      return false;
+    }
+    
+    // Considerar Cloudflare Tunnel como desarrollo
+    const isDev = 
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.startsWith('192.168.') ||
+      window.location.hostname.startsWith('10.') ||
+      window.location.hostname.includes('local') ||
+      window.location.hostname.includes('.trycloudflare.com'); // Cloudflare Tunnel
+      
+    return !isDev;
   }
 
   /**

@@ -41,10 +41,13 @@ Thumbs.db
 *.backup
 *~
 
-# Archivos grandes de datos (opcional - comentar si quieres versionar los datos)
+# Archivos grandes de datos y binarios
 # data/*.geojson
 # data/*.pmtiles
+# data/*.mbtiles
 # data/*.json
+cloudflared.exe
+*.exe
 
 # Build outputs
 dist/

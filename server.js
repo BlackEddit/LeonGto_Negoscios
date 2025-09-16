@@ -9,6 +9,28 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
+// Configuración mejorada de CORS y seguridad
+app.use((req, res, next) => {
+  // Permitir todas las origenes en desarrollo
+  res.header('Access-Control-Allow-Origin', '*');
+  
+  // Cabeceras necesarias para el mapa
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Range');
+  
+  // Configuración de seguridad
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.header('Cross-Origin-Opener-Policy', 'same-origin');
+  
+  // Manejo especial para solicitudes OPTIONS (necesario para CORS)
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 // ⚠️ NO comprimir .pmtiles (rompe lecturas por rango)
 app.use(
   compression({
@@ -23,6 +45,23 @@ app.use(express.json());
 
 const PUB = path.join(__dirname, "public");
 const DATA = path.join(__dirname, "data");
+
+// Servir archivos estáticos de /public con cache y tipos MIME correctos
+app.use(express.static(PUB, {
+  maxAge: '1h',
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+    // Asegurar que las fuentes se sirvan correctamente
+    if (path.endsWith('.woff2')) {
+      res.setHeader('Content-Type', 'font/woff2');
+    }
+  }
+}));
 
 // /data estático con cabeceras para PMTiles
 app.use(

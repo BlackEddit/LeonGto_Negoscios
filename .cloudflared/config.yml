@@ -1,0 +1,8 @@
+url: http://localhost:3000
+tunnel: mapa-leon-gto
+credentials-file: ~/.cloudflared/cert.pem
+metrics: 127.0.0.1:2000
+ingress:
+  - hostname: mapa-leon-gto.trycloudflare.com
+    service: http://localhost:3000
+  - service: http_status:404
